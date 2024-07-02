@@ -1,0 +1,71 @@
+---
+- hosts: all
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+  - name: Install pip
+    apt:
+      update_cache: yes
+      name: python3-pip
+
+  - name: Install aptitude using apt
+    apt:
+      name=aptitude
+      state=latest
+      update_cache=yes
+      force_apt_get=yes
+
+  - name: Install required system packages
+    apt: name={{ item }} state=latest update_cache=yes
+    loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+
+  - name: Add Docker GPG apt Key
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add Docker Repository
+    apt_repository:
+      repo: deb https://download.docker.com/linux/ubuntu lunar stable
+      state: present
+
+  - name: Update apt and install docker-ce
+    apt:
+      update_cache=yes
+      name=docker-ce
+      state=latest
+
+  #- name: install docker-py
+  #  pip: name=docker-py
+
+  - name: enable Docker services
+    service:
+      name: "docker"
+      state: started
+      enabled: yes
+
+  - name: Check if container is running
+    shell: docker ps
+
+  - name: Copy file in target node
+    copy:
+      src: prometheus-config.yaml
+      dest: /opt/prometheus-config.yaml
+
+  - name: run docker image
+    shell: docker run --name prometheus -dit -p 9090:9090 prom/prometheus
+
+  - name: Copy config file to docker container
+    community.docker.docker_container_copy_into:
+      container: prometheus
+      path: /opt/prometheus-config.yaml
+      container_path: /etc/prometheus/prometheus.yml
+
+#  - name: run docker image
+#    shell: docker run --name my-prometheus --mount type=bind,source=/opt/ansible-aws-ec2-terraform-tags/ansible/prometheus-config.yaml,destination=/etc/prometheus/prometheus.yml -p 9090:9090 prom/prometheus
+
+  - name: show running images
+    shell: docker images
