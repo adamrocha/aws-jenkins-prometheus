@@ -15,7 +15,7 @@ $ chmod 600 $HOME/keys/prometheus_kp_infradmin.pem
 $ aws configure
 
 # Source variables
-$ source ansible/ditwl_pro.sh
+$ source ansible/vars.sh
 
 # Deploy ec2 instances from terraform directory
 $ terraform apply -auto-approve
