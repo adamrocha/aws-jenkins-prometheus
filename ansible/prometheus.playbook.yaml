@@ -64,8 +64,5 @@
       path: /opt/prometheus-config.yaml
       container_path: /etc/prometheus/prometheus.yml
 
-#  - name: run docker image
-#    shell: docker run --name my-prometheus --mount type=bind,source=/opt/ansible-aws-ec2-terraform-tags/ansible/prometheus-config.yaml,destination=/etc/prometheus/prometheus.yml -p 9090:9090 prom/prometheus
-
-  - name: show running images
-    shell: docker images
+  - name: restart docker containers
+    shell: docker restart `docker ps -q`
