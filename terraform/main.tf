@@ -182,3 +182,25 @@ resource "aws_instance" "prometheus-ec-b" {
     "cost_center"  = "blue-department"
   }
 }
+
+resource "aws_network_interface" "prometheus-ec-a" {
+  subnet_id       = aws_subnet.prometheus-sn-za-pro-pub-00.id
+  private_ips     = ["172.21.0.10"]
+  security_groups = [aws_security_group.prometheus-sg-front-end.id]
+
+  attachment {
+    instance     = aws_instance.prometheus-ec-a.id
+    device_index = 1
+  }
+}
+
+resource "aws_network_interface" "prometheus-ec-b" {
+  subnet_id       = aws_subnet.prometheus-sn-za-pro-pub-00.id
+  private_ips     = ["172.21.0.11"]
+  security_groups = [aws_security_group.prometheus-sg-front-end.id]
+
+  attachment {
+    instance     = aws_instance.prometheus-ec-a.id
+    device_index = 1
+  }
+}
