@@ -144,25 +144,68 @@ data "aws_ami" "ubuntu-23-04-arm64-minimal" {
 
 # Front end server running Ubuntu 23.04 ARM Minimal.
 resource "aws_instance" "prometheus-ec-a" {
-  ami                    = data.aws_ami.ubuntu-23-04-arm64-minimal.id
-  instance_type          = "t4g.micro"
-  subnet_id              = aws_subnet.prometheus-sn-za-pro-pub-00.id
-  key_name               = "prometheus-kp-config-user"
-  vpc_security_group_ids = [aws_security_group.prometheus-sg-base-ec2.id, aws_security_group.prometheus-sg-front-end.id]
+  ami           = data.aws_ami.ubuntu-23-04-arm64-minimal.id
+  instance_type = "t4g.micro"
+  key_name      = "prometheus-kp-config-user"
+  network_interface {
+    network_interface_id = aws_network_interface.prometheus-nic-a.id
+    device_index         = 0
+  }
   tags = {
-    "Name"         = "prometheus-ec-a"
-    "private_name" = "prometheus-ec-a"
-    "public_name"  = "www"
-    "app"          = "front-end"
-    "app_ver"      = "2.3"
-    "os"           = "ubuntu"
-    "os_ver"       = "23.04"
-    "os_arch"      = "arm64"
-    "environment"  = "pro"
-    "cost_center"  = "green-department"
+    Name         = "prometheus-ec-a"
+    private_name = "prometheus-ec-a"
+    public_name  = "www"
+    app          = "front-end"
+    app_ver      = "2.3"
+    os           = "ubuntu"
+    os_ver       = "23.04"
+    os_arch      = "arm64"
+    environment  = "pro"
+    cost_center  = "green-department"
   }
 }
 
+resource "aws_network_interface" "prometheus-nic-a" {
+  subnet_id       = aws_subnet.prometheus-sn-za-pro-pub-00.id
+  private_ips     = ["172.21.0.10"]
+  security_groups = [aws_security_group.prometheus-sg-base-ec2.id, aws_security_group.prometheus-sg-front-end.id]
+  tags = {
+    Name = "primary_network_interface"
+  }
+}
+
+resource "aws_instance" "prometheus-ec-b" {
+  ami           = data.aws_ami.ubuntu-23-04-arm64-minimal.id
+  instance_type = "t4g.micro"
+  key_name      = "prometheus-kp-config-user"
+  network_interface {
+    network_interface_id = aws_network_interface.prometheus-nic-b.id
+    device_index         = 0
+  }
+  tags = {
+    Name         = "prometheus-ec-b"
+    private_name = "prometheus-ec-b"
+    public_name  = "www"
+    app          = "front-end"
+    app_ver      = "2.3"
+    os           = "ubuntu"
+    os_ver       = "23.04"
+    os_arch      = "arm64"
+    environment  = "pro"
+    cost_center  = "blue-department"
+  }
+}
+
+resource "aws_network_interface" "prometheus-nic-b" {
+  subnet_id       = aws_subnet.prometheus-sn-za-pro-pub-00.id
+  private_ips     = ["172.21.0.11"]
+  security_groups = [aws_security_group.prometheus-sg-base-ec2.id, aws_security_group.prometheus-sg-front-end.id]
+  tags = {
+    Name = "primary_network_interface"
+  }
+}
+
+/*
 resource "aws_instance" "prometheus-ec-b" {
   ami                    = data.aws_ami.ubuntu-23-04-arm64-minimal.id
   instance_type          = "t4g.micro"
@@ -170,37 +213,27 @@ resource "aws_instance" "prometheus-ec-b" {
   key_name               = "prometheus-kp-config-user"
   vpc_security_group_ids = [aws_security_group.prometheus-sg-base-ec2.id, aws_security_group.prometheus-sg-front-end.id]
   tags = {
-    "Name"         = "prometheus-ec-b"
-    "private_name" = "prometheus-ec-b"
-    "public_name"  = "www"
-    "app"          = "front-end"
-    "app_ver"      = "2.3"
-    "os"           = "ubuntu"
-    "os_ver"       = "23.04"
-    "os_arch"      = "arm64"
-    "environment"  = "pro"
-    "cost_center"  = "blue-department"
+    Name         = "prometheus-ec-b"
+    private_name = "prometheus-ec-b"
+    public_name  = "www"
+    app          = "front-end"
+    app_ver      = "2.3"
+    os           = "ubuntu"
+    os_ver       = "23.04"
+    os_arch      = "arm64"
+    environment  = "pro"
+    cost_center  = "blue-department"
   }
 }
 
-resource "aws_network_interface" "prometheus-ec-a" {
-  subnet_id       = aws_subnet.prometheus-sn-za-pro-pub-00.id
-  private_ips     = ["172.21.0.10"]
-  security_groups = [aws_security_group.prometheus-sg-front-end.id]
-
-  attachment {
-    instance     = aws_instance.prometheus-ec-a.id
-    device_index = 1
-  }
-}
-
-resource "aws_network_interface" "prometheus-ec-b" {
+resource "aws_network_interface" "prometheus-nic-b" {
   subnet_id       = aws_subnet.prometheus-sn-za-pro-pub-00.id
   private_ips     = ["172.21.0.11"]
   security_groups = [aws_security_group.prometheus-sg-front-end.id]
 
   attachment {
-    instance     = aws_instance.prometheus-ec-a.id
+    instance     = aws_instance.prometheus-ec-b.id
     device_index = 1
   }
 }
+*/
