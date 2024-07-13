@@ -38,25 +38,24 @@
       name=docker-ce
       state=latest
 
-  #- name: install docker-py
-  #  pip: name=docker-py
-
-  - name: enable Docker services
+  - name: Enable Docker services
     service:
       name: "docker"
       state: started
       enabled: yes
-
-  - name: Check if container is running
-    shell: docker ps
 
   - name: Copy file in target node
     copy:
       src: prometheus-config.yaml
       dest: /opt/prometheus-config.yaml
 
-  - name: run docker image
-    shell: docker run --name prometheus -dit -p 9090:9090 prom/prometheus
+  - name: Run Docker container
+    community.docker.docker_container:
+      name: prometheus
+      image: prom/prometheus
+      state: started
+      ports:
+        - "9090:9090"
 
   - name: Copy config file to docker container
     community.docker.docker_container_copy_into:
@@ -64,5 +63,23 @@
       path: /opt/prometheus-config.yaml
       container_path: /etc/prometheus/prometheus.yml
 
-  - name: restart docker containers
-    shell: docker restart `docker ps -q`
+  - name: Restart containers
+    community.docker.docker_container:
+      name: prometheus
+      image: prom/prometheus
+      state: started
+      restart: true
+
+  - name: Check container status
+    docker_container_info:
+      name: prometheus
+    register: result
+
+  - name: Does container exist?
+    debug:
+      msg: "The container {{ 'exists' if result.exists else 'does not exist' }}"
+
+  - name: Print the status of the container
+    debug:
+      msg: "The container status is {{ result.container['State']['Status'] }}"
+    when: result.exists
