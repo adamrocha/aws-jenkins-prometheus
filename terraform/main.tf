@@ -123,7 +123,7 @@ resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end" {
 # Upload a Private Key Pair for SSH Instance Authentication
 resource "aws_key_pair" "prometheus-kp-config-user" {
   key_name   = "prometheus-kp-config-user"
-  public_key = file("~/keys/prometheus-kp-config-user-ecdsa.pub")
+  public_key = file("~/keys/prometheus-kp-ecdsa.pub")
 }
 
 data "aws_ami" "ubuntu-23-04-arm64-minimal" {

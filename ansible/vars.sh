@@ -2,7 +2,7 @@
 # source vars.sh
 
 #Set Private KEY for SSH
-export ANSIBLE_PRIVATE_KEY_FILE=${HOME}/keys/prometheus-kp-config-user-ecdsa
+export ANSIBLE_PRIVATE_KEY_FILE=${HOME}/keys/prometheus-kp-ecdsa
 
 #Set Ansible Inventory configuration
 export ANSIBLE_INVENTORY=$(pwd)/inventory.aws_ec2.yml
