@@ -121,8 +121,8 @@ resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end" {
 }
 
 # Upload a Private Key Pair for SSH Instance Authentication
-resource "aws_key_pair" "prometheus-kp-config-user" {
-  key_name   = "prometheus-kp-config-user"
+resource "aws_key_pair" "prometheus-key-pair" {
+  key_name   = "prometheus-key-pair"
   public_key = file("~/keys/prometheus-kp-ecdsa.pub")
 }
 
@@ -146,7 +146,7 @@ data "aws_ami" "ubuntu-23-04-arm64-minimal" {
 resource "aws_instance" "prometheus-ec-a" {
   ami           = data.aws_ami.ubuntu-23-04-arm64-minimal.id
   instance_type = "t4g.micro"
-  key_name      = "prometheus-kp-config-user"
+  key_name      = "prometheus-key-pair"
   network_interface {
     network_interface_id = aws_network_interface.prometheus-nic-a.id
     device_index         = 0
@@ -177,7 +177,7 @@ resource "aws_network_interface" "prometheus-nic-a" {
 resource "aws_instance" "prometheus-ec-b" {
   ami           = data.aws_ami.ubuntu-23-04-arm64-minimal.id
   instance_type = "t4g.micro"
-  key_name      = "prometheus-kp-config-user"
+  key_name      = "prometheus-key-pair"
   network_interface {
     network_interface_id = aws_network_interface.prometheus-nic-b.id
     device_index         = 0
@@ -210,7 +210,7 @@ resource "aws_instance" "prometheus-ec-b" {
   ami                    = data.aws_ami.ubuntu-23-04-arm64-minimal.id
   instance_type          = "t4g.micro"
   subnet_id              = aws_subnet.prometheus-sn-za-pro-pub-00.id
-  key_name               = "prometheus-kp-config-user"
+  key_name               = "prometheus-key-pair"
   vpc_security_group_ids = [aws_security_group.prometheus-sg-base-ec2.id, aws_security_group.prometheus-sg-front-end.id]
   tags = {
     Name         = "prometheus-ec-b"
