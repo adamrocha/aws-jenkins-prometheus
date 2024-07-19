@@ -138,6 +138,16 @@ resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-3000" {
   cidr_blocks       = ["0.0.0.0/0"] # Internet
 }
 
+resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-9100" {
+  security_group_id = aws_security_group.prometheus-sg-front-end.id
+  type              = "ingress"
+  from_port         = 9100
+  to_port           = 9100
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"] # Internet
+}
+
+
 # Upload a Private Key Pair for SSH Instance Authentication
 resource "aws_key_pair" "prometheus-key-pair" {
   key_name   = "prometheus-key-pair"

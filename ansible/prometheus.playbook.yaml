@@ -41,6 +41,28 @@
     apt:
       deb: /tmp/otelcol_0.105.0_linux_arm64.deb
 
+  - name: Download Node Exporter
+    get_url:
+      url: https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-arm64.tar.gz
+      dest: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
+
+  - name: Extract tar ball
+    ansible.builtin.unarchive:
+      src: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
+      dest: /opt
+      remote_src: yes
+
+  - name: Create a symbolic link
+    ansible.builtin.file:
+      src: /opt/node_exporter-1.8.2.linux-arm64/node_exporter
+      dest: /usr/local/bin/node_exporter
+      owner: root
+      group: root
+      state: link
+
+  - name: Run Node Exporter
+    ansible.builtin.shell: node_exporter &
+
 # Provision node A
 - hosts: prometheus-ec-a
   remote_user: ubuntu
