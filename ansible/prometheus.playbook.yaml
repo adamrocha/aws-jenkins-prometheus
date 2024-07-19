@@ -6,21 +6,9 @@
 
   tasks:
 
-  - name: Install pip
-    apt:
-      update_cache: yes
-      name: python3-pip
-
-  - name: Install aptitude using apt
-    apt:
-      name=aptitude
-      state=latest
-      update_cache=yes
-      force_apt_get=yes
-
-  - name: Install required system packages
+  - name: Install base packages
     apt: name={{ item }} state=latest update_cache=yes
-    loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools']
+    loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools', 'lsof' ]
 
   - name: Add Docker GPG apt Key
     apt_key:
@@ -44,6 +32,23 @@
       state: started
       enabled: yes
 
+  - name: Download Open Telemetry
+    get_url:
+      url: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.105.0/otelcol_0.105.0_linux_arm64.deb
+      dest: /tmp/otelcol_0.105.0_linux_arm64.deb
+
+  - name: Install Open Telemetry
+    apt:
+      deb: /tmp/otelcol_0.105.0_linux_arm64.deb
+
+# Provision node A
+- hosts: prometheus-ec-a
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+
+  tasks:
+
   - name: Copy file in target node
     copy:
       src: prometheus-config.yaml
@@ -63,7 +68,7 @@
       path: /opt/prometheus-config.yaml
       container_path: /etc/prometheus/prometheus.yml
 
-  - name: Restart containers
+  - name: Restart container
     community.docker.docker_container:
       name: prometheus
       image: prom/prometheus
@@ -83,3 +88,11 @@
     debug:
       msg: "The container status is {{ result.container['State']['Status'] }}"
     when: result.exists
+
+  - name: Run Docker container
+    community.docker.docker_container:
+      name: grafana
+      image: grafana/grafana-enterprise
+      state: started
+      ports:
+        - "3000:3000"

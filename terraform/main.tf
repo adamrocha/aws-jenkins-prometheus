@@ -111,11 +111,29 @@ resource "aws_security_group" "prometheus-sg-front-end" {
 }
 
 # Allow access from the Internet to port 9090 in the EC2 instances
-resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end" {
+resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-9090" {
   security_group_id = aws_security_group.prometheus-sg-front-end.id
   type              = "ingress"
   from_port         = 9090
   to_port           = 9090
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"] # Internet
+}
+
+resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-8888" {
+  security_group_id = aws_security_group.prometheus-sg-front-end.id
+  type              = "ingress"
+  from_port         = 8888
+  to_port           = 8888
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"] # Internet
+}
+
+resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-3000" {
+  security_group_id = aws_security_group.prometheus-sg-front-end.id
+  type              = "ingress"
+  from_port         = 3000
+  to_port           = 3000
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"] # Internet
 }
