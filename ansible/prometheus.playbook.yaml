@@ -32,14 +32,14 @@
       state: started
       enabled: yes
 
-  - name: Download Open Telemetry
-    get_url:
-      url: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.105.0/otelcol_0.105.0_linux_arm64.deb
-      dest: /tmp/otelcol_0.105.0_linux_arm64.deb
+#  - name: Download Open Telemetry
+#    get_url:
+#      url: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.105.0/otelcol_0.105.0_linux_arm64.deb
+#      dest: /tmp/otelcol_0.105.0_linux_arm64.deb
 
-  - name: Install Open Telemetry
-    apt:
-      deb: /tmp/otelcol_0.105.0_linux_arm64.deb
+#  - name: Install Open Telemetry
+#    apt:
+#      deb: /tmp/otelcol_0.105.0_linux_arm64.deb
 
   - name: Download Node Exporter
     get_url:
@@ -52,7 +52,7 @@
       dest: /opt
       remote_src: yes
 
-  - name: Create a symbolic link
+  - name: Create symbolic link to executable
     ansible.builtin.file:
       src: /opt/node_exporter-1.8.2.linux-arm64/node_exporter
       dest: /usr/local/bin/node_exporter
@@ -71,12 +71,12 @@
 
   tasks:
 
-  - name: Copy file in target node
+  - name: Copy file to target node
     copy:
       src: prometheus-config.yaml
       dest: /opt/prometheus-config.yaml
 
-  - name: Run Docker container
+  - name: Run prometheus container
     community.docker.docker_container:
       name: prometheus
       image: prom/prometheus
@@ -84,37 +84,51 @@
       ports:
         - "9090:9090"
 
-  - name: Copy config file to docker container
+  - name: Copy config file to prometheus container
     community.docker.docker_container_copy_into:
       container: prometheus
       path: /opt/prometheus-config.yaml
       container_path: /etc/prometheus/prometheus.yml
 
-  - name: Restart container
+  - name: Restart prometheus container
     community.docker.docker_container:
       name: prometheus
       image: prom/prometheus
       state: started
       restart: true
 
-  - name: Check container status
+  - name: Check prometheus container status
     docker_container_info:
       name: prometheus
     register: result
 
-  - name: Does container exist?
+  - name: Does prometheus container exist?
     debug:
-      msg: "The container {{ 'exists' if result.exists else 'does not exist' }}"
+      msg: "The prometheus container {{ 'exists' if result.exists else 'does not exist' }}"
 
-  - name: Print the status of the container
+  - name: Print the status of the prometheus container
     debug:
-      msg: "The container status is {{ result.container['State']['Status'] }}"
+      msg: "The prometheus container status is {{ result.container['State']['Status'] }}"
     when: result.exists
 
-  - name: Run Docker container
+  - name: Run grafana container
     community.docker.docker_container:
       name: grafana
       image: grafana/grafana-enterprise
       state: started
       ports:
         - "3000:3000"
+
+  - name: Check grafana container status
+    docker_container_info:
+      name: grafana
+    register: result
+
+  - name: Does grafana container exist?
+    debug:
+      msg: "The grafana container {{ 'exists' if result.exists else 'does not exist' }}"
+
+  - name: Print the status of the grafana container
+    debug:
+      msg: "The gafana container status is {{ result.container['State']['Status'] }}"
+    when: result.exists
