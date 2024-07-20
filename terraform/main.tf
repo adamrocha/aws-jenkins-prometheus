@@ -162,7 +162,7 @@ data "aws_ami" "ubuntu-23-04-arm64-minimal" {
 }
 
 # Front end server running Ubuntu 23.04 ARM Minimal.
-resource "aws_instance" "prometheus-ec-a" {
+resource "aws_instance" "prometheus-ec2-a" {
   ami           = data.aws_ami.ubuntu-23-04-arm64-minimal.id
   instance_type = "t4g.micro"
   key_name      = "prometheus-key-pair"
@@ -171,8 +171,8 @@ resource "aws_instance" "prometheus-ec-a" {
     device_index         = 0
   }
   tags = {
-    Name         = "prometheus-ec-a"
-    private_name = "prometheus-ec-a"
+    Name         = "prometheus-ec2-a"
+    private_name = "prometheus-ec2-a"
     public_name  = "www"
     app          = "front-end"
     app_ver      = "2.3"
@@ -193,7 +193,7 @@ resource "aws_network_interface" "prometheus-nic-a" {
   }
 }
 
-resource "aws_instance" "prometheus-ec-b" {
+resource "aws_instance" "prometheus-ec2-b" {
   ami           = data.aws_ami.ubuntu-23-04-arm64-minimal.id
   instance_type = "t4g.micro"
   key_name      = "prometheus-key-pair"
@@ -202,8 +202,8 @@ resource "aws_instance" "prometheus-ec-b" {
     device_index         = 0
   }
   tags = {
-    Name         = "prometheus-ec-b"
-    private_name = "prometheus-ec-b"
+    Name         = "prometheus-ec2-b"
+    private_name = "prometheus-ec2-b"
     public_name  = "www"
     app          = "front-end"
     app_ver      = "2.3"
@@ -225,15 +225,15 @@ resource "aws_network_interface" "prometheus-nic-b" {
 }
 
 /*
-resource "aws_instance" "prometheus-ec-b" {
+resource "aws_instance" "prometheus-ec2-b" {
   ami                    = data.aws_ami.ubuntu-23-04-arm64-minimal.id
   instance_type          = "t4g.micro"
   subnet_id              = aws_subnet.prometheus-sn-za-pro-pub-00.id
   key_name               = "prometheus-key-pair"
   vpc_security_group_ids = [aws_security_group.prometheus-sg-base-ec2.id, aws_security_group.prometheus-sg-front-end.id]
   tags = {
-    Name         = "prometheus-ec-b"
-    private_name = "prometheus-ec-b"
+    Name         = "prometheus-ec2-b"
+    private_name = "prometheus-ec2-b"
     public_name  = "www"
     app          = "front-end"
     app_ver      = "2.3"
@@ -251,7 +251,7 @@ resource "aws_network_interface" "prometheus-nic-b" {
   security_groups = [aws_security_group.prometheus-sg-front-end.id]
 
   attachment {
-    instance     = aws_instance.prometheus-ec-b.id
+    instance     = aws_instance.prometheus-ec2-b.id
     device_index = 1
   }
 }

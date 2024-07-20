@@ -64,7 +64,7 @@
     ansible.builtin.shell: node_exporter &
 
 # Provision node A
-- hosts: prometheus-ec-a
+- hosts: prometheus-ec2-a
   remote_user: ubuntu
   become: yes
   become_method: sudo
@@ -108,7 +108,7 @@
 
   - name: Print the status of the prometheus container
     debug:
-      msg: "The prometheus container status is {{ result.container['State']['Status'] }}"
+      msg: "The prometheus container is {{ result.container['State']['Status'] }}"
     when: result.exists
 
   - name: Run grafana container
@@ -130,5 +130,5 @@
 
   - name: Print the status of the grafana container
     debug:
-      msg: "The gafana container status is {{ result.container['State']['Status'] }}"
+      msg: "The gafana container is {{ result.container['State']['Status'] }}"
     when: result.exists

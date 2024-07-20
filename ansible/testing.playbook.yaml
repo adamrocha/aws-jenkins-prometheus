@@ -6,14 +6,14 @@
      ansible.builtin.ping:
 
 - name: One host, by name
-  hosts: prometheus-ec-a
+  hosts: prometheus-ec2-a
   remote_user: ubuntu 
   tasks:
    - name: Ping 
      ansible.builtin.ping:     
 
 - name: Multiple Hosts, by name
-  hosts: prometheus-ec-a:prometheus-ec-b
+  hosts: prometheus-ec2-a:prometheus-ec2-b
   remote_user: ubuntu
   tasks:
    - name: Ping 
