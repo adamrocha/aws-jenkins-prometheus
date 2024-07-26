@@ -8,7 +8,7 @@
 
   - name: Install base packages
     apt: name={{ item }} state=latest update_cache=yes
-    loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools', 'lsof' ]
+    loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools', 'lsof', 'openjdk-17-jre' ]
 
   - name: Add Docker GPG apt Key
     apt_key:
@@ -63,8 +63,8 @@
   - name: Run Node Exporter
     ansible.builtin.shell: node_exporter &
 
-# Provision node A
-- hosts: prometheus-ec2-a
+# Provision Prometheus
+- hosts: prometheus-ec2
   remote_user: ubuntu
   become: yes
   become_method: sudo
@@ -132,3 +132,19 @@
     debug:
       msg: "The gafana container is {{ result.container['State']['Status'] }}"
     when: result.exists
+
+# Provision Jenkins
+- hosts: jenkins-ec2
+  remote_user: ubuntu
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+  - name: Run jenkins container
+    community.docker.docker_container:
+      name: jenkins
+      image: jenkins/jenkins
+      state: started
+      ports:
+        - "8080:8080"

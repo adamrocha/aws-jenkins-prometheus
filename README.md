@@ -6,7 +6,7 @@ https://developer.hashicorp.com/terraform/install
 https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 
 # Generate a key pair
-$ ssh-keygen -t ed25519 -N "" -m pem -f ~/keys/prometheus-kp-ecdsa
+$ ssh-keygen -t ed25519 -N "" -m pem -f ~/keys/aws-kp-ecdsa
 
 # Configure AWS CLI
 $ aws configure
