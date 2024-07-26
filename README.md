@@ -1,4 +1,4 @@
-# Build a prometheus instance on AWS using Terraform and Ansible to automate deployed ec2 instances
+# Set up two Ubuntu cloud servers that run Jenkins, Prometheus and Grafana in a hierarchical federation model and scrape some basic metrics from each into the primary instance.
 
 # Install Ansible, Terraform and AWS CLI on the control node
 https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html#installing-distros
@@ -10,12 +10,3 @@ $ ssh-keygen -t ed25519 -N "" -m pem -f ~/keys/aws-kp-ecdsa
 
 # Configure AWS CLI
 $ aws configure
-
-# Source variables
-$ source ansible/vars.sh
-
-# Deploy ec2 instances from terraform directory
-$ terraform apply -auto-approve
-
-# Deploy containers from ansible directory
-$ ansible-playbook prometheus.playbook.yaml
