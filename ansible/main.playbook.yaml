@@ -8,7 +8,14 @@
 
   - name: Install base packages
     apt: name={{ item }} state=latest update_cache=yes
-    loop: [ 'apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common', 'python3-pip', 'virtualenv', 'python3-setuptools', 'lsof', 'openjdk-17-jre' ]
+    loop: [ 'apt-transport-https',
+#            'ca-certificates',
+            'software-properties-common',
+            'python3-pip',
+#            'python3-setuptools',
+#            'openjdk-17-jre',
+            'virtualenv',
+            'python3-setuptools' ]
 
   - name: Add Docker GPG apt Key
     apt_key:
@@ -76,7 +83,7 @@
       src: prometheus-config.yaml
       dest: /opt/prometheus-config.yaml
 
-  - name: Run prometheus container
+  - name: Run Prometheus container
     community.docker.docker_container:
       name: prometheus
       image: prom/prometheus
@@ -90,28 +97,28 @@
       path: /opt/prometheus-config.yaml
       container_path: /etc/prometheus/prometheus.yml
 
-  - name: Restart prometheus container
+  - name: Restart Prometheus container
     community.docker.docker_container:
       name: prometheus
       image: prom/prometheus
       state: started
       restart: true
 
-  - name: Check prometheus container status
+  - name: Check Prometheus container status
     docker_container_info:
       name: prometheus
     register: result
 
-  - name: Does prometheus container exist?
+  - name: Does Prometheus container exist?
     debug:
       msg: "The prometheus container {{ 'exists' if result.exists else 'does not exist' }}"
 
-  - name: Print the status of the prometheus container
+  - name: Print the status of the Prometheus container
     debug:
-      msg: "The prometheus container is {{ result.container['State']['Status'] }}"
+      msg: "The Prometheus container is {{ result.container['State']['Status'] }}"
     when: result.exists
 
-  - name: Run grafana container
+  - name: Run Grafana container
     community.docker.docker_container:
       name: grafana
       image: grafana/grafana-enterprise
@@ -119,18 +126,18 @@
       ports:
         - "3000:3000"
 
-  - name: Check grafana container status
+  - name: Check Grafana container status
     docker_container_info:
       name: grafana
     register: result
 
-  - name: Does grafana container exist?
+  - name: Does Grafana container exist?
     debug:
       msg: "The grafana container {{ 'exists' if result.exists else 'does not exist' }}"
 
-  - name: Print the status of the grafana container
+  - name: Print the status of the Grafana container
     debug:
-      msg: "The gafana container is {{ result.container['State']['Status'] }}"
+      msg: "The Grafana container is {{ result.container['State']['Status'] }}"
     when: result.exists
 
 # Provision Jenkins
@@ -141,10 +148,24 @@
 
   tasks:
 
-  - name: Run jenkins container
+  - name: Run Jenkins container
     community.docker.docker_container:
       name: jenkins
       image: jenkins/jenkins
       state: started
       ports:
         - "8080:8080"
+
+  - name: Check Jenkins container status
+    docker_container_info:
+      name: jenkins
+    register: result
+
+  - name: Does Jenkins container exist?
+    debug:
+      msg: "The Jenkins container {{ 'exists' if result.exists else 'does not exist' }}"
+
+  - name: Print the status of the Jenkins container
+    debug:
+      msg: "The Jenkins container is {{ result.container['State']['Status'] }}"
+    when: result.exists
