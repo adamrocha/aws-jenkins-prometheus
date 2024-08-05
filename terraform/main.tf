@@ -129,7 +129,7 @@ resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-9090" {
   from_port         = 9090
   to_port           = 9090
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"] # Internet
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "grafana-sr-internet-to-front-end-3000" {
@@ -138,7 +138,7 @@ resource "aws_security_group_rule" "grafana-sr-internet-to-front-end-3000" {
   from_port         = 3000
   to_port           = 3000
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"] # Internet
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "exporter-sr-internet-to-front-end-9100" {
@@ -147,7 +147,7 @@ resource "aws_security_group_rule" "exporter-sr-internet-to-front-end-9100" {
   from_port         = 9100
   to_port           = 9100
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"] # Internet
+  cidr_blocks       = ["0.0.0.0/0"]
 
 }
 
@@ -157,7 +157,7 @@ resource "aws_security_group_rule" "jenkins-sr-internet-to-front-end-8080" {
   from_port         = 8080
   to_port           = 8080
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"] # Internet
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 # Upload a Private Key Pair for SSH Instance Authentication
