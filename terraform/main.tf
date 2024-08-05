@@ -200,7 +200,7 @@ resource "aws_instance" "prometheus-ec2" {
     os           = "ubuntu"
     os_ver       = "23.04"
     os_arch      = "arm64"
-    environment  = "pro"
+    environment  = "dev"
     cost_center  = "department-a"
   }
 }
@@ -233,7 +233,7 @@ resource "aws_instance" "jenkins-ec2" {
     os           = "ubuntu"
     os_ver       = "23.04"
     os_arch      = "arm64"
-    environment  = "pro"
+    environment  = "dev"
     cost_center  = "department-b"
   }
 }
