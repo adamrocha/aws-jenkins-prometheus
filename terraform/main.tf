@@ -10,9 +10,6 @@ terraform {
   }
 }
 
-#-----------------------------------------
-# Default provider: AWS
-#-----------------------------------------
 provider "aws" {
   shared_credentials_files = ["~/.aws/credentials"]
   shared_config_files      = ["~/.aws/config"]
@@ -20,7 +17,7 @@ provider "aws" {
   region = "us-east-1"
 }
 
-# VPC
+# AWS VPC
 resource "aws_vpc" "base-vpc" {
   cidr_block = "172.21.0.0/24"
   tags = {
@@ -28,7 +25,7 @@ resource "aws_vpc" "base-vpc" {
   }
 }
 
-# Subnet
+# AWS Subnet
 resource "aws_subnet" "base-sn-za-pro-pub-00" {
   vpc_id                  = aws_vpc.base-vpc.id
   cidr_block              = "172.21.0.0/24"
@@ -47,7 +44,7 @@ resource "aws_internet_gateway" "base-ig" {
   }
 }
 
-# Routing table for public subnet (access to Internet)
+# Routing table for public subnet
 resource "aws_route_table" "base-rt-pub-main" {
   vpc_id = aws_vpc.base-vpc.id
 
@@ -74,24 +71,24 @@ resource "aws_security_group" "base-sg-ec2" {
 }
 
 # DANGEROUS!!
-# Allow access from the Internet to port 22 (SSH) in the EC2 instances
+# Allow SSH access from the Internet to EC2 instances
 resource "aws_security_group_rule" "base-sr-internet-to-ec2-ssh" {
   security_group_id = aws_security_group.base-sg-ec2.id
   type              = "ingress"
   from_port         = 22
   to_port           = 22
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"] # Internet
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
-# Allow access from the Internet for ICMP protocol (e.g. ping) to the EC2 instances
+# Allow ICMP access from the Internet to EC2 instances
 resource "aws_security_group_rule" "base-sr-internet-to-ec2-icmp" {
   security_group_id = aws_security_group.base-sg-ec2.id
   type              = "ingress"
   from_port         = -1
   to_port           = -1
   protocol          = "icmp"
-  cidr_blocks       = ["0.0.0.0/0"] # Internet
+  cidr_blocks       = ["0.0.0.0/0"]
 }
 
 # Allow all outbound traffic to Internet
@@ -104,25 +101,28 @@ resource "aws_security_group_rule" "base-sr-all-outbund" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-# Create a Security Group for Prometheus front end
+# Create front-end security groups
 resource "aws_security_group" "prometheus-sg-front-end" {
   name   = "prometheus-sg-front-end"
   vpc_id = aws_vpc.base-vpc.id
 }
 
-# Create a Security Group for Jenkins front end
-resource "aws_security_group" "jenkins-sg-front-end" {
-  name   = "jenkins-sg-front-end"
-  vpc_id = aws_vpc.base-vpc.id
-}
-
-# Create a Security Group for exporter
 resource "aws_security_group" "exporter-sg-front-end" {
   name   = "exporter-sg-front-end"
   vpc_id = aws_vpc.base-vpc.id
 }
 
-# Allow access from the Internet to port 9090 in the EC2 instances
+resource "aws_security_group" "grafana-sg-front-end" {
+  name   = "grafana-sg-front-end"
+  vpc_id = aws_vpc.base-vpc.id
+}
+
+resource "aws_security_group" "jenkins-sg-front-end" {
+  name   = "jenkins-sg-front-end"
+  vpc_id = aws_vpc.base-vpc.id
+}
+
+# Allow access from the Internet to front end ports
 resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-9090" {
   security_group_id = aws_security_group.prometheus-sg-front-end.id
   type              = "ingress"
@@ -132,8 +132,8 @@ resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-9090" {
   cidr_blocks       = ["0.0.0.0/0"] # Internet
 }
 
-resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-3000" {
-  security_group_id = aws_security_group.prometheus-sg-front-end.id
+resource "aws_security_group_rule" "grafana-sr-internet-to-front-end-3000" {
+  security_group_id = aws_security_group.grafana-sg-front-end.id
   type              = "ingress"
   from_port         = 3000
   to_port           = 3000
@@ -182,7 +182,7 @@ data "aws_ami" "ubuntu-23-04-arm64-minimal" {
   owners = ["099720109477"] # Canonical
 }
 
-# Front end server running Ubuntu 23.04 ARM Minimal.
+# Front end servers running Ubuntu 23.04 ARM micro
 resource "aws_instance" "prometheus-ec2" {
   ami           = data.aws_ami.ubuntu-23-04-arm64-minimal.id
   instance_type = "t4g.micro"
