@@ -6,7 +6,5 @@ https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.
 https://developer.hashicorp.com/terraform/install
 # Install AWS CLI
 https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
-# Configure AWS CLI
-$ aws configure
 # Generate a key pair
 $ ssh-keygen -t ed25519 -N "" -m pem -f ~/keys/aws-kp-ecdsa
