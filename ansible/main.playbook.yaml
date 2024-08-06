@@ -148,6 +148,9 @@
       msg: "The Grafana container is {{ result.container['State']['Status'] }}"
     when: result.exists
 
+  - name: Docker auto-restart containers
+    shell: docker update --restart unless-stopped $(docker ps -q) 
+
 # Provision Jenkins
 - hosts: jenkins-ec2
   remote_user: ubuntu
@@ -177,3 +180,6 @@
     debug:
       msg: "The Jenkins container is {{ result.container['State']['Status'] }}"
     when: result.exists
+
+  - name: Docker auto-restart containers
+    shell: docker update --restart unless-stopped $(docker ps -q) 
