@@ -66,8 +66,17 @@
       group: root
       state: link
 
-  - name: Run Node Exporter
-    ansible.builtin.shell: node_exporter &
+  - name: Create Node Exporter service
+    copy:
+      src: node_exporter.service
+      dest: /etc/systemd/system/
+      mode: 0644
+
+  - name: Enable and start Node Exporter service
+    service:
+      name: node_exporter
+      enabled: true
+      state: started
 
 # Provision Prometheus
 - hosts: prometheus-ec2
