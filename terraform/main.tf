@@ -211,7 +211,7 @@ resource "aws_network_interface" "prometheus-nic" {
   security_groups = [aws_security_group.base-sg-ec2.id,
     aws_security_group.prometheus-sg-front-end.id,
     aws_security_group.exporter-sg-front-end.id,
-  aws_security_group.grafana-sg-front-end.id,
+    aws_security_group.grafana-sg-front-end.id,
   aws_security_group.jenkins-sg-front-end.id]
   tags = {
     Name = "primary_network_interface"
@@ -244,6 +244,7 @@ resource "aws_network_interface" "jenkins-nic" {
   subnet_id   = aws_subnet.base-sn-za-pro-pub-00.id
   private_ips = ["172.21.0.21"]
   security_groups = [aws_security_group.base-sg-ec2.id,
+    aws_security_group.exporter-sg-front-end.id,
   aws_security_group.jenkins-sg-front-end.id]
   tags = {
     Name = "primary_network_interface"
