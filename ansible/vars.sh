@@ -1,5 +1,4 @@
 # source this file before using ansible
-# source vars.sh
 
 #Set Private KEY for SSH
 export ANSIBLE_PRIVATE_KEY_FILE=${HOME}/keys/aws-kp-ecdsa
