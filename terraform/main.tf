@@ -69,7 +69,7 @@ resource "aws_security_group" "base-sg-ec2" {
   name   = "base-sg-ec2"
   vpc_id = aws_vpc.base-vpc.id
 }
-/*
+
 # DANGEROUS!!
 # Allow SSH access from the Internet to EC2 instances
 resource "aws_security_group_rule" "base-sr-internet-to-ec2-ssh" {
@@ -80,7 +80,7 @@ resource "aws_security_group_rule" "base-sr-internet-to-ec2-ssh" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
 }
-*/
+
 # Allow ICMP access from the Internet to EC2 instances
 resource "aws_security_group_rule" "base-sr-internet-to-ec2-icmp" {
   security_group_id = aws_security_group.base-sg-ec2.id
