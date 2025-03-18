@@ -13,3 +13,9 @@ crash.*.log
 # Kubernetes
 *-join-command
 *.log
+
+# Ansible
+.ansible
+
+# VSCode
+.vscode
