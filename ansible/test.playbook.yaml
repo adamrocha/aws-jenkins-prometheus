@@ -1,22 +1,22 @@
 - name: All hosts
   hosts: all
-  remote_user: ubuntu 
+  remote_user: ubuntu
   tasks:
    - name: Ping all
      ansible.builtin.ping:
 
 - name: One host, by name
   hosts: prometheus-ec2
-  remote_user: ubuntu 
+  remote_user: ubuntu
   tasks:
-   - name: Ping 
-     ansible.builtin.ping:     
+   - name: Ping
+     ansible.builtin.ping:
 
 - name: Multiple Hosts, by name
   hosts: jenkins-ec2:prometheus-ec2
   remote_user: ubuntu
   tasks:
-   - name: Ping 
+   - name: Ping
      ansible.builtin.ping:
 
 - name: One group, hosts in Cost Center department_b (AWS hosts with tag cost_center=department-b)
@@ -26,7 +26,8 @@
    - name: Ping
      ansible.builtin.ping:
 
-- name: Multiple groups, hosts in Cost Center blue_department or in green_department (AWS hosts with tag cost_center=blue-department or cost_center=green-department)
+- name: Multiple groups, hosts in Cost Center blue_department or in green_department
+    (AWS hosts with tag cost_center=blue-department or cost_center=green-department)
   hosts: tag_cost_center_department_a:tag_cost_center_department_b
   remote_user: ubuntu
   tasks:
