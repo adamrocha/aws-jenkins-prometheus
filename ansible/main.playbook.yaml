@@ -1,185 +1,147 @@
----
 - hosts: all
   remote_user: ubuntu
   become: yes
   become_method: sudo
-
   tasks:
+    - name: Install base packages
+      apt: name={{ item }} state=latest update_cache=yes
+      loop: ['apt-transport-https',
+        #            'ca-certificates',
+        'software-properties-common', 'python3-pip',
+        #            'python3-setuptools',
+        #            'openjdk-17-jre',
+        'virtualenv']
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu lunar stable
+        state: present
+    - name: Update apt and install docker-ce
+      apt: update_cache=yes name=docker-ce state=latest
+    - name: Enable Docker services
+      service:
+        name: "docker"
+        state: started
+        enabled: yes
+        #  - name: Download Open Telemetry
+        #    get_url:
+        #      url: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.105.0/otelcol_0.105.0_linux_arm64.deb
+        #      dest: /tmp/otelcol_0.105.0_linux_arm64.deb
 
-  - name: Install base packages
-    apt: name={{ item }} state=latest update_cache=yes
-    loop: [ 'apt-transport-https',
-#            'ca-certificates',
-            'software-properties-common',
-            'python3-pip',
-#            'python3-setuptools',
-#            'openjdk-17-jre',
-            'virtualenv' ]
-
-  - name: Add Docker GPG apt Key
-    apt_key:
-      url: https://download.docker.com/linux/ubuntu/gpg
-      state: present
-
-  - name: Add Docker Repository
-    apt_repository:
-      repo: deb https://download.docker.com/linux/ubuntu lunar stable
-      state: present
-
-  - name: Update apt and install docker-ce
-    apt:
-      update_cache=yes
-      name=docker-ce
-      state=latest
-
-  - name: Enable Docker services
-    service:
-      name: "docker"
-      state: started
-      enabled: yes
-
-#  - name: Download Open Telemetry
-#    get_url:
-#      url: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.105.0/otelcol_0.105.0_linux_arm64.deb
-#      dest: /tmp/otelcol_0.105.0_linux_arm64.deb
-
-#  - name: Install Open Telemetry
-#    apt:
-#      deb: /tmp/otelcol_0.105.0_linux_arm64.deb
-
-  - name: Download Node Exporter
-    get_url:
-      url: https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-arm64.tar.gz
-      dest: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
-
-  - name: Extract tar ball
-    ansible.builtin.unarchive:
-      src: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
-      dest: /opt
-      remote_src: yes
-
-  - name: Create symbolic link to executable
-    ansible.builtin.file:
-      src: /opt/node_exporter-1.8.2.linux-arm64/node_exporter
-      dest: /usr/local/bin/node_exporter
-      owner: root
-      group: root
-      state: link
-
-  - name: Create Node Exporter service
-    copy:
-      src: files/node_exporter.service
-      dest: /etc/systemd/system/
-      mode: 0644
-
-  - name: Enable and start Node Exporter service
-    service:
-      name: node_exporter
-      enabled: true
-      state: started
-
+        #  - name: Install Open Telemetry
+        #    apt:
+        #      deb: /tmp/otelcol_0.105.0_linux_arm64.deb
+    - name: Download Node Exporter
+      get_url:
+        url: https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-arm64.tar.gz
+        dest: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
+    - name: Extract tar ball
+      ansible.builtin.unarchive:
+        src: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
+        dest: /opt
+        remote_src: yes
+    - name: Create symbolic link to executable
+      ansible.builtin.file:
+        src: /opt/node_exporter-1.8.2.linux-arm64/node_exporter
+        dest: /usr/local/bin/node_exporter
+        owner: root
+        group: root
+        state: link
+    - name: Create Node Exporter service
+      copy:
+        src: files/node_exporter.service
+        dest: /etc/systemd/system/
+        mode: 0644
+    - name: Enable and start Node Exporter service
+      service:
+        name: node_exporter
+        enabled: true
+        state: started
 # Provision Prometheus
 - hosts: prometheus-ec2
   remote_user: ubuntu
   become: yes
   become_method: sudo
-
   tasks:
-
-  - name: Copy file to target node
-    copy:
-      src: files/prometheus-config.yaml
-      dest: /opt/prometheus-config.yaml
-
-  - name: Run Prometheus container
-    community.docker.docker_container:
-      name: prometheus
-      image: prom/prometheus
-      state: started
-      ports:
-        - "9090:9090"
-
-  - name: Copy config file to prometheus container
-    community.docker.docker_container_copy_into:
-      container: prometheus
-      path: /opt/prometheus-config.yaml
-      container_path: /etc/prometheus/prometheus.yml
-
-  - name: Restart Prometheus container
-    community.docker.docker_container:
-      name: prometheus
-      image: prom/prometheus
-      state: started
-      restart: true
-
-  - name: Check Prometheus container status
-    docker_container_info:
-      name: prometheus
-    register: result
-
-  - name: Does Prometheus container exist?
-    debug:
-      msg: "The prometheus container {{ 'exists' if result.exists else 'does not exist' }}"
-
-  - name: Print the status of the Prometheus container
-    debug:
-      msg: "The Prometheus container is {{ result.container['State']['Status'] }}"
-    when: result.exists
-
-  - name: Run Grafana container
-    community.docker.docker_container:
-      name: grafana
-      image: grafana/grafana-enterprise
-      state: started
-      ports:
-        - "3000:3000"
-
-  - name: Check Grafana container status
-    docker_container_info:
-      name: grafana
-    register: result
-
-  - name: Does Grafana container exist?
-    debug:
-      msg: "The grafana container {{ 'exists' if result.exists else 'does not exist' }}"
-
-  - name: Print the status of the Grafana container
-    debug:
-      msg: "The Grafana container is {{ result.container['State']['Status'] }}"
-    when: result.exists
-
-  - name: Docker auto-restart containers
-    shell: docker update --restart unless-stopped $(docker ps -q) 
-
+    - name: Copy file to target node
+      copy:
+        src: files/prometheus-config.yaml
+        dest: /opt/prometheus-config.yaml
+    - name: Run Prometheus container
+      community.docker.docker_container:
+        name: prometheus
+        image: prom/prometheus
+        state: started
+        ports:
+          - "9090:9090"
+    - name: Copy config file to prometheus container
+      community.docker.docker_container_copy_into:
+        container: prometheus
+        path: /opt/prometheus-config.yaml
+        container_path: /etc/prometheus/prometheus.yml
+    - name: Restart Prometheus container
+      community.docker.docker_container:
+        name: prometheus
+        image: prom/prometheus
+        state: started
+        restart: true
+    - name: Check Prometheus container status
+      docker_container_info:
+        name: prometheus
+      register: result
+    - name: Does Prometheus container exist?
+      debug:
+        msg: "The prometheus container {{ 'exists' if result.exists else 'does not exist' }}"
+    - name: Print the status of the Prometheus container
+      debug:
+        msg: "The Prometheus container is {{ result.container['State']['Status'] }}"
+      when: result.exists
+    - name: Run Grafana container
+      community.docker.docker_container:
+        name: grafana
+        image: grafana/grafana-enterprise
+        state: started
+        ports:
+          - "3000:3000"
+    - name: Check Grafana container status
+      docker_container_info:
+        name: grafana
+      register: result
+    - name: Does Grafana container exist?
+      debug:
+        msg: "The grafana container {{ 'exists' if result.exists else 'does not exist' }}"
+    - name: Print the status of the Grafana container
+      debug:
+        msg: "The Grafana container is {{ result.container['State']['Status'] }}"
+      when: result.exists
+    - name: Docker auto-restart containers
+      shell: docker update --restart unless-stopped $(docker ps -q)
 # Provision Jenkins
 - hosts: jenkins-ec2
   remote_user: ubuntu
   become: yes
   become_method: sudo
-
   tasks:
-
-  - name: Run Jenkins container
-    community.docker.docker_container:
-      name: jenkins
-      image: jenkins/jenkins
-      state: started
-      ports:
-        - "8080:8080"
-
-  - name: Check Jenkins container status
-    docker_container_info:
-      name: jenkins
-    register: result
-
-  - name: Does Jenkins container exist?
-    debug:
-      msg: "The Jenkins container {{ 'exists' if result.exists else 'does not exist' }}"
-
-  - name: Print the status of the Jenkins container
-    debug:
-      msg: "The Jenkins container is {{ result.container['State']['Status'] }}"
-    when: result.exists
-
-  - name: Docker auto-restart containers
-    shell: docker update --restart unless-stopped $(docker ps -q) 
+    - name: Run Jenkins container
+      community.docker.docker_container:
+        name: jenkins
+        image: jenkins/jenkins
+        state: started
+        ports:
+          - "8080:8080"
+    - name: Check Jenkins container status
+      docker_container_info:
+        name: jenkins
+      register: result
+    - name: Does Jenkins container exist?
+      debug:
+        msg: "The Jenkins container {{ 'exists' if result.exists else 'does not exist' }}"
+    - name: Print the status of the Jenkins container
+      debug:
+        msg: "The Jenkins container is {{ result.container['State']['Status'] }}"
+      when: result.exists
+    - name: Docker auto-restart containers
+      shell: docker update --restart unless-stopped $(docker ps -q)

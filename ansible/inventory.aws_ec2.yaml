@@ -3,11 +3,9 @@
 plugin: amazon.aws.aws_ec2
 cache: false
 use_ssm_inventory: true
-
 # Limit query to regions
 regions:
   - us-east-1
-
 # A named AWS profile to use for authentication.
 #profile: prom_infradmin
 
@@ -17,9 +15,7 @@ keyed_groups:
     key: tags
   - prefix: instance_type
     key: instance_type
-
 hostnames:
-- tag:private_name
-
+  - tag:private_name
 compose:
   ansible_host: public_ip_address
