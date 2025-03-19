@@ -4,12 +4,12 @@ resource "aws_key_pair" "aws-key-pair" {
   public_key = file("/opt/keys/aws-kp-ecdsa.pub")
 }
 
-data "aws_ami" "ubuntu-23-04-arm64-minimal" {
+data "aws_ami" "ubuntu-noble-24-04-arm64-minimal" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu-minimal/images/hvm-ssd/ubuntu-lunar-23.04-arm64-minimal-*"]
+    values = ["ubuntu-minimal/images/hvm-ssd-gp3/ubuntu-noble-24.04-arm64-minimal-*"]
   }
 
   filter {
@@ -20,9 +20,9 @@ data "aws_ami" "ubuntu-23-04-arm64-minimal" {
   owners = ["099720109477"] # Canonical
 }
 
-# Front end servers running Ubuntu 23.04 ARM micro
+# Front end servers running Ubuntu 24.04 ARM micro
 resource "aws_instance" "prometheus-ec2" {
-  ami           = data.aws_ami.ubuntu-23-04-arm64-minimal.id
+  ami           = data.aws_ami.ubuntu-noble-24-04-arm64-minimal.id
   instance_type = "t4g.micro"
   key_name      = "aws-key-pair"
   network_interface {
@@ -57,7 +57,7 @@ resource "aws_network_interface" "prometheus-nic" {
 }
 
 resource "aws_instance" "jenkins-ec2" {
-  ami           = data.aws_ami.ubuntu-23-04-arm64-minimal.id
+  ami           = data.aws_ami.ubuntu-noble-24-04-arm64-minimal.id
   instance_type = "t4g.micro"
   key_name      = "aws-key-pair"
   network_interface {
