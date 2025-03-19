@@ -163,7 +163,7 @@ resource "aws_security_group_rule" "jenkins-sr-internet-to-front-end-8080" {
 # Upload a Private Key Pair for SSH Instance Authentication
 resource "aws_key_pair" "aws-key-pair" {
   key_name   = "aws-key-pair"
-  public_key = file("~/keys/aws-kp-ecdsa.pub")
+  public_key = file("/opt/keys/aws-kp-ecdsa.pub")
 }
 
 data "aws_ami" "ubuntu-23-04-arm64-minimal" {
