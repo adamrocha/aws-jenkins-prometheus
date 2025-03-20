@@ -15,7 +15,8 @@ crash.*.log
 *.log
 
 # Ansible
-.ansible
+.ansible/
+ansible.log
 
 # VSCode
 .vscode
