@@ -1,48 +1,59 @@
-- hosts: all
+- name: All hosts
+  hosts: all
   remote_user: ubuntu
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
   tasks:
+    - name: Echo base packages installation
+      ansible.builtin.debug:
+        msg: "Base packages installed and configured"
     - name: Install base packages
-      apt: name={{ item }} state=latest update_cache=yes
-      loop: ['apt-transport-https',
-        #            'ca-certificates',
-        'software-properties-common', 'python3-pip',
-        #            'python3-setuptools',
-        #            'openjdk-17-jre',
-        'virtualenv']
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - 'apt-transport-https'
+        - 'software-properties-common'
+        - 'python3-pip'
+        - 'virtualenv'
     - name: Add Docker GPG apt Key
-      apt_key:
+      ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
     - name: Add Docker Repository
-      apt_repository:
-        repo: deb https://download.docker.com/linux/ubuntu lunar stable
+      ansible.builtin.apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
         state: present
     - name: Update apt and install docker-ce
-      apt: update_cache=yes name=docker-ce state=latest
+      ansible.builtin.apt:
+        update_cache: true
+        name: docker-ce
+        state: present
     - name: Enable Docker services
-      service:
+      ansible.builtin.service:
         name: "docker"
         state: started
-        enabled: yes
-        #  - name: Download Open Telemetry
-        #    get_url:
-        #      url: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.105.0/otelcol_0.105.0_linux_arm64.deb
-        #      dest: /tmp/otelcol_0.105.0_linux_arm64.deb
-
-        #  - name: Install Open Telemetry
-        #    apt:
-        #      deb: /tmp/otelcol_0.105.0_linux_arm64.deb
+        enabled: true
+    - name: Download Open Telemetry
+      ansible.builtin.get_url:
+        url: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.105.0/otelcol_0.105.0_linux_arm64.deb
+        dest: /tmp/otelcol_0.105.0_linux_arm64.deb
+        mode: '0644'
+    - name: Install Open Telemetry
+      ansible.builtin.apt:
+        deb: /tmp/otelcol_0.105.0_linux_arm64.deb
+        state: present
     - name: Download Node Exporter
-      get_url:
+      ansible.builtin.get_url:
         url: https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-arm64.tar.gz
         dest: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
+        mode: '0644'
     - name: Extract tar ball
       ansible.builtin.unarchive:
         src: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
         dest: /opt
-        remote_src: yes
+        remote_src: true
     - name: Create symbolic link to executable
       ansible.builtin.file:
         src: /opt/node_exporter-1.8.2.linux-arm64/node_exporter
@@ -51,23 +62,24 @@
         group: root
         state: link
     - name: Create Node Exporter service
-      copy:
+      ansible.builtin.copy:
         src: files/node_exporter.service
         dest: /etc/systemd/system/
-        mode: 0644
+        mode: "0644"
     - name: Enable and start Node Exporter service
-      service:
+      ansible.builtin.service:
         name: node_exporter
         enabled: true
         state: started
-# Provision Prometheus
-- hosts: prometheus-ec2
+- name: Provision Prometheus
+  hosts: prometheus-ec2
   remote_user: ubuntu
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
   tasks:
     - name: Copy file to target node
-      copy:
+      ansible.builtin.copy:
+        mode: '0644'
         src: files/prometheus-config.yaml
         dest: /opt/prometheus-config.yaml
     - name: Start Prometheus container
@@ -89,14 +101,14 @@
         state: started
         restart: true
     - name: Check Prometheus container status
-      docker_container_info:
+      community.docker.docker_container_info:
         name: prometheus
       register: result
     - name: Does Prometheus container exist?
-      debug:
+      ansible.builtin.debug:
         msg: "The prometheus container {{ 'exists' if result.exists else 'does not exist' }}"
     - name: Print the status of the Prometheus container
-      debug:
+      ansible.builtin.debug:
         msg: "The Prometheus container is {{ result.container['State']['Status'] }}"
       when: result.exists
     - name: Run Grafana container
@@ -107,23 +119,30 @@
         ports:
           - "3000:3000"
     - name: Check Grafana container status
-      docker_container_info:
+      community.docker.docker_container_info:
         name: grafana
       register: result
     - name: Does Grafana container exist?
-      debug:
+      ansible.builtin.debug:
         msg: "The grafana container {{ 'exists' if result.exists else 'does not exist' }}"
     - name: Print the status of the Grafana container
-      debug:
+      ansible.builtin.debug:
         msg: "The Grafana container is {{ result.container['State']['Status'] }}"
       when: result.exists
+    - name: Check if any containers need auto-restart update
+      ansible.builtin.shell: docker update --restart unless-stopped $(docker ps -q)
+      register: containers_need_update
+      failed_when: false
+      changed_when: containers_need_update.rc == 0
     - name: Docker auto-restart containers
-      shell: docker update --restart unless-stopped $(docker ps -q)
-# Provision Jenkins
-- hosts: jenkins-ec2
+      ansible.builtin.shell: docker update --restart unless-stopped $(docker ps -q)
+      when: containers_need_update.rc == 0
+      changed_when: containers_need_update.rc == 0
+- name: Provision Jenkins
+  hosts: jenkins-ec2
   remote_user: ubuntu
-  become: yes
-  become_method: sudo
+  become: true
+  become_method: ansible.builtin.sudo
   tasks:
     - name: Run Jenkins container
       community.docker.docker_container:
@@ -133,15 +152,18 @@
         ports:
           - "8080:8080"
     - name: Check Jenkins container status
-      docker_container_info:
+      community.docker.docker_container_info:
         name: jenkins
       register: result
     - name: Does Jenkins container exist?
-      debug:
+      ansible.builtin.debug:
         msg: "The Jenkins container {{ 'exists' if result.exists else 'does not exist' }}"
     - name: Print the status of the Jenkins container
-      debug:
+      ansible.builtin.debug:
         msg: "The Jenkins container is {{ result.container['State']['Status'] }}"
       when: result.exists
-    - name: Docker auto-restart containers
-      shell: docker update --restart unless-stopped $(docker ps -q)
+    - name: Check if any containers need auto-restart update
+      ansible.builtin.shell: docker update --restart unless-stopped $(docker ps -q)
+      register: containers_need_update
+      failed_when: false
+      changed_when: containers_need_update.rc == 0
