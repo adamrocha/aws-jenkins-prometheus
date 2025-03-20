@@ -70,7 +70,7 @@
       copy:
         src: files/prometheus-config.yaml
         dest: /opt/prometheus-config.yaml
-    - name: Run Prometheus container
+    - name: Start Prometheus container
       community.docker.docker_container:
         name: prometheus
         image: prom/prometheus
