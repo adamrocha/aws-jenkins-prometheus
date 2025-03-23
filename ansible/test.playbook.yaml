@@ -29,8 +29,8 @@
   tasks:
     - name: Ping
       ansible.builtin.ping:
-- name: Intersection of groups, all hosts running Ubuntu version 23.04 (AWS hosts with tag os=ubuntu AND tag os_ver=24_04)
-  hosts: tag_os_ubuntu:tag_os_ver_24_04
+- name: Intersection of groups, all hosts running Ubuntu version 24.04 (AWS hosts with tag os=ubuntu AND tag os_ver=24_04)
+  hosts: tag_os_ubuntu:&tag_os_ver_24_04
   remote_user: ubuntu
   tasks:
     - name: Ping
