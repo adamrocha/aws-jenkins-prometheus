@@ -22,8 +22,7 @@
   tasks:
     - name: Ping
       ansible.builtin.ping:
-- name: Multiple groups, hosts in Cost Center department_a or in department_b
-    (AWS hosts with tag cost_center=department_a or cost_center=department_b)
+- name: Multiple groups, hosts in Cost Center department_a or in department_b (AWS hosts with tag cost_center=department_a or cost_center=department_b)
   hosts: tag_cost_center_department_a:tag_cost_center_department_b
   remote_user: ubuntu
   tasks:

@@ -4,9 +4,6 @@
   become: true
   become_method: ansible.builtin.sudo
   tasks:
-    - name: Echo base packages installation
-      ansible.builtin.debug:
-        msg: "Base packages installed and configured"
     - name: Install base packages
       ansible.builtin.apt:
         name: "{{ item }}"
@@ -17,6 +14,9 @@
         - 'software-properties-common'
         - 'python3-pip'
         - 'virtualenv'
+    - name: Echo base packages installation
+      ansible.builtin.debug:
+        msg: "Base packages installed and configured"
     - name: Add Docker GPG apt Key
       ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
@@ -71,6 +71,7 @@
         name: node_exporter
         enabled: true
         state: started
+# Provision Prometheus and Grafana
 - name: Provision Prometheus
   hosts: prometheus-ec2
   remote_user: ubuntu
@@ -138,6 +139,7 @@
       ansible.builtin.shell: docker update --restart unless-stopped $(docker ps -q)
       when: containers_need_update.rc == 0
       changed_when: containers_need_update.rc == 0
+# Provision Jenkins
 - name: Provision Jenkins
   hosts: jenkins-ec2
   remote_user: ubuntu
