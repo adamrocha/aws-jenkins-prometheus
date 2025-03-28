@@ -71,7 +71,6 @@
         name: node_exporter
         enabled: true
         state: started
-
 # Provision Prometheus and Grafana
 - name: Provision Prometheus
   hosts: prometheus-ec2
@@ -140,7 +139,6 @@
       ansible.builtin.shell: docker update --restart unless-stopped $(docker ps -q)
       when: containers_need_update.rc == 0
       changed_when: containers_need_update.rc == 0
-
 # Provision Jenkins
 - name: Provision Jenkins
   hosts: jenkins-ec2
