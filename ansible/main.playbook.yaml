@@ -14,6 +14,7 @@
         - 'software-properties-common'
         - 'python3-pip'
         - 'virtualenv'
+        - 'openjdk-21-jdk'
     - name: Echo base packages installation
       ansible.builtin.debug:
         msg: "Base packages installed and configured"
