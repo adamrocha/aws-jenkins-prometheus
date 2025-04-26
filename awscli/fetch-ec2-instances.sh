@@ -2,5 +2,5 @@
 
 aws ec2 describe-instances \
     --query "Reservations[].Instances[].{Name:Tags[?Key=='Name']|[0].Value,PrivateIP:PrivateIpAddress,PublicIP:PublicIpAddress}" \
-    --filters Name=instance-state-name,Values=running \
+    --filters Name=instance-state-name,Values=running,stopped \
     --output table
