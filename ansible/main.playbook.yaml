@@ -17,6 +17,13 @@
     - name: Echo base packages installation
       ansible.builtin.debug:
         msg: "Base packages installed and configured"
+    - name: Create a tmp directory with specific permissions
+      ansible.builtin.file:
+        path: /root/.ansible/tmp
+        state: directory
+        mode: '0755'
+#        owner: youruser
+#        group: yourgroup
     - name: Add Docker GPG apt Key
       ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
