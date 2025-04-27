@@ -1,4 +1,4 @@
-# Define Terrraform Backend and Providers
+// Define Terrraform Backend and Providers
 terraform {
   required_version = "> 1.5"
 

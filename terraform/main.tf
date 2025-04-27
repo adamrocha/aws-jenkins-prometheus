@@ -1,4 +1,4 @@
-# Upload a Private Key Pair for SSH Instance Authentication
+// Upload a Private Key Pair for SSH Instance Authentication
 resource "aws_key_pair" "aws-key-pair" {
   key_name   = "aws-key-pair"
   public_key = file("/opt/keys/aws-kp-ecdsa.pub")
@@ -20,7 +20,7 @@ data "aws_ami" "ubuntu-noble-24-04-arm64-minimal" {
   owners = ["099720109477"] # Canonical
 }
 
-# Front end servers running Ubuntu 24.04 ARM micro
+// Front end servers running Ubuntu 24.04 ARM micro
 resource "aws_instance" "prometheus-ec2" {
   ami           = data.aws_ami.ubuntu-noble-24-04-arm64-minimal.id
   instance_type = "t4g.micro"
