@@ -4,6 +4,14 @@
   become: true
   become_method: ansible.builtin.sudo
   tasks:
+    - name: Clean apt cache
+      ansible.builtin.command: apt-get clean
+      register: apt_clean
+      changed_when: apt_clean.rc == 0
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
     - name: Install base packages
       ansible.builtin.apt:
         name: "{{ item }}"
