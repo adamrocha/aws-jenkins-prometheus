@@ -25,10 +25,20 @@ resource "aws_instance" "prometheus-ec2" {
   ami           = data.aws_ami.ubuntu-noble-24-04-arm64-minimal.id
   instance_type = "t4g.micro"
   key_name      = "aws-key-pair"
+  monitoring    = true
+  ebs_optimized = true
+
+  metadata_options {
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    http_endpoint               = "enabled"
+  }
+
   network_interface {
     network_interface_id = aws_network_interface.prometheus-nic.id
     device_index         = 0
   }
+
   tags = {
     Name         = "prometheus-ec2"
     private_name = "prometheus-ec2"
@@ -62,10 +72,20 @@ resource "aws_instance" "jenkins-ec2" {
   ami           = data.aws_ami.ubuntu-noble-24-04-arm64-minimal.id
   instance_type = "t4g.micro"
   key_name      = "aws-key-pair"
+  monitoring    = true
+  ebs_optimized = true
+
+  metadata_options {
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 1
+    http_endpoint               = "enabled"
+  }
+
   network_interface {
     network_interface_id = aws_network_interface.jenkins-nic.id
     device_index         = 0
   }
+
   tags = {
     Name         = "jenkins-ec2"
     private_name = "jenkins-ec2"
