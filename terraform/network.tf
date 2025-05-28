@@ -48,6 +48,7 @@ resource "aws_main_route_table_association" "base-rta-default" {
 // Create a "base" Security Group to be assigned to all EC2 instances
 resource "aws_security_group" "base-sg-ec2" {
   name   = "base-sg-ec2"
+  description = "Base security group for EC2 instances"
   vpc_id = aws_vpc.base-vpc.id
 }
 
@@ -55,6 +56,7 @@ resource "aws_security_group" "base-sg-ec2" {
 // Allow SSH access from the Internet to EC2 instances
 resource "aws_security_group_rule" "base-sr-internet-to-ec2-ssh" {
   security_group_id = aws_security_group.base-sg-ec2.id
+  description = "Allow SSH access from the Internet"
   type              = "ingress"
   from_port         = 22
   to_port           = 22
@@ -65,6 +67,7 @@ resource "aws_security_group_rule" "base-sr-internet-to-ec2-ssh" {
 // Allow ICMP access from the Internet to EC2 instances
 resource "aws_security_group_rule" "base-sr-internet-to-ec2-icmp" {
   security_group_id = aws_security_group.base-sg-ec2.id
+  description = "Allow ICMP access from the Internet"
   type              = "ingress"
   from_port         = -1
   to_port           = -1
@@ -75,6 +78,7 @@ resource "aws_security_group_rule" "base-sr-internet-to-ec2-icmp" {
 // Allow all outbound traffic to Internet
 resource "aws_security_group_rule" "base-sr-all-outbund" {
   security_group_id = aws_security_group.base-sg-ec2.id
+  description = "Allow all outbound traffic to the Internet"
   type              = "egress"
   from_port         = "0"
   to_port           = "0"
@@ -85,21 +89,25 @@ resource "aws_security_group_rule" "base-sr-all-outbund" {
 // Create front-end security groups
 resource "aws_security_group" "prometheus-sg-front-end" {
   name   = "prometheus-sg-front-end"
+  description = "Security group for Prometheus front-end"
   vpc_id = aws_vpc.base-vpc.id
 }
 
 resource "aws_security_group" "exporter-sg-front-end" {
   name   = "exporter-sg-front-end"
+  description = "Security group for Exporter front-end"
   vpc_id = aws_vpc.base-vpc.id
 }
 
 resource "aws_security_group" "grafana-sg-front-end" {
   name   = "grafana-sg-front-end"
+  description = "Security group for Grafana front-end"
   vpc_id = aws_vpc.base-vpc.id
 }
 
 resource "aws_security_group" "jenkins-sg-front-end" {
   name   = "jenkins-sg-front-end"
+  description = "Security group for Jenkins front-end"
   vpc_id = aws_vpc.base-vpc.id
 }
 
