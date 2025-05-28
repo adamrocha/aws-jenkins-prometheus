@@ -140,7 +140,4 @@ resource "aws_security_group_rule" "jenkins-sr-internet-to-front-end-8080" {
   to_port           = 8080
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-} to_port           = 8080
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
 }
