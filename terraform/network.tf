@@ -45,16 +45,17 @@ resource "aws_main_route_table_association" "base-rta-default" {
   route_table_id = aws_route_table.base-rt-pub-main.id
 }
 
-// Create a "base" Security Group to be assigned to all EC2 instances
+
 resource "aws_security_group" "base-sg-ec2" {
   name   = "base-sg-ec2"
   description = "Base security group for EC2 instances"
   vpc_id = aws_vpc.base-vpc.id
 }
 
-// DANGEROUS!!
-// Allow SSH access from the Internet to EC2 instances
+
 resource "aws_security_group_rule" "base-sr-internet-to-ec2-ssh" {
+  # checkov:skip=CKV_AWS_24: For demonstration purposes only, this rule allows SSH access from anywhere.
+  # This is not recommended for production environments.
   security_group_id = aws_security_group.base-sg-ec2.id
   description = "Allow SSH access from the Internet"
   type              = "ingress"
@@ -64,7 +65,6 @@ resource "aws_security_group_rule" "base-sr-internet-to-ec2-ssh" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-// Allow ICMP access from the Internet to EC2 instances
 resource "aws_security_group_rule" "base-sr-internet-to-ec2-icmp" {
   security_group_id = aws_security_group.base-sg-ec2.id
   description = "Allow ICMP access from the Internet"
@@ -75,7 +75,6 @@ resource "aws_security_group_rule" "base-sr-internet-to-ec2-icmp" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-// Allow all outbound traffic to Internet
 resource "aws_security_group_rule" "base-sr-all-outbund" {
   security_group_id = aws_security_group.base-sg-ec2.id
   description = "Allow all outbound traffic to the Internet"
@@ -86,7 +85,7 @@ resource "aws_security_group_rule" "base-sr-all-outbund" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-// Create front-end security groups
+
 resource "aws_security_group" "prometheus-sg-front-end" {
   name   = "prometheus-sg-front-end"
   description = "Security group for Prometheus front-end"
