@@ -105,6 +105,7 @@ resource "aws_security_group" "jenkins-sg-front-end" {
 
 // Allow access from the Internet to front end ports
 resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-9090" {
+  description       = "Allow Prometheus UI access from the Internet on port 9090"
   security_group_id = aws_security_group.prometheus-sg-front-end.id
   type              = "ingress"
   from_port         = 9090
@@ -112,8 +113,8 @@ resource "aws_security_group_rule" "prometheus-sr-internet-to-front-end-9090" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
 }
-
 resource "aws_security_group_rule" "grafana-sr-internet-to-front-end-3000" {
+  description       = "Allow Grafana UI access from the Internet on port 3000"
   security_group_id = aws_security_group.grafana-sg-front-end.id
   type              = "ingress"
   from_port         = 3000
@@ -121,8 +122,8 @@ resource "aws_security_group_rule" "grafana-sr-internet-to-front-end-3000" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
 }
-
 resource "aws_security_group_rule" "exporter-sr-internet-to-front-end-9100" {
+  description       = "Allow Node Exporter access from the Internet on port 9100"
   security_group_id = aws_security_group.exporter-sg-front-end.id
   type              = "ingress"
   from_port         = 9100
@@ -131,12 +132,15 @@ resource "aws_security_group_rule" "exporter-sr-internet-to-front-end-9100" {
   cidr_blocks       = ["0.0.0.0/0"]
 
 }
-
 resource "aws_security_group_rule" "jenkins-sr-internet-to-front-end-8080" {
+  description       = "Allow Jenkins UI access from the Internet on port 8080"
   security_group_id = aws_security_group.jenkins-sg-front-end.id
   type              = "ingress"
   from_port         = 8080
   to_port           = 8080
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+} to_port           = 8080
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
 }
