@@ -24,11 +24,10 @@ data "aws_ami" "ubuntu_noble_24_04_arm64_minimal" {
 resource "aws_instance" "prometheus_ec2" {
   ami                  = var.ami_id
   iam_instance_profile = aws_iam_instance_profile.ssm_instance_profile.name
-  //vpc_security_group_ids = [aws_security_group.prometheus_sg_front_end.id]
-  instance_type = var.instance_type
-  key_name      = aws_key_pair.default.key_name
-  monitoring    = true
-  ebs_optimized = true
+  instance_type        = var.instance_type
+  key_name             = aws_key_pair.default.key_name
+  monitoring           = true
+  ebs_optimized        = true
 
   volume_tags = {
     Name = "prometheus-ec2-root-volume"
@@ -81,11 +80,10 @@ resource "aws_network_interface" "prometheus_nic" {
 resource "aws_instance" "jenkins_ec2" {
   ami                  = var.ami_id
   iam_instance_profile = aws_iam_instance_profile.ssm_instance_profile.name
-  //vpc_security_group_ids = [aws_security_group.jenkins_sg_front_end.id]
-  instance_type = var.instance_type
-  key_name      = aws_key_pair.default.key_name
-  monitoring    = true
-  ebs_optimized = true
+  instance_type        = var.instance_type
+  key_name             = aws_key_pair.default.key_name
+  monitoring           = true
+  ebs_optimized        = true
 
   volume_tags = {
     Name = "jenkins-ec2-root-volume"
