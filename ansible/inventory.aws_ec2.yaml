@@ -7,7 +7,7 @@ use_ssm_inventory: true
 regions:
   - us-east-1
 # A named AWS profile to use for authentication.
-#profile: prom_infradmin
+profile: prom_infradmin
 
 # Create Ansible hosts groups using the following elements: 
 keyed_groups:

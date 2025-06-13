@@ -1,10 +1,10 @@
 // Upload a Private Key Pair for SSH Instance Authentication
-resource "aws_key_pair" "aws-key-pair" {
+resource "aws_key_pair" "default" {
   key_name   = "aws-key-pair"
   public_key = file("/opt/keys/aws-kp-ecdsa.pub")
 }
-
-data "aws_ami" "ubuntu-noble-24-04-arm64-minimal" {
+/*
+data "aws_ami" "ubuntu_noble_24_04_arm64_minimal" {
   most_recent = true
 
   filter {
@@ -19,23 +19,33 @@ data "aws_ami" "ubuntu-noble-24-04-arm64-minimal" {
 
   owners = ["099720109477"] # Canonical
 }
-
+*/
 // Front end servers running Ubuntu 24.04 ARM micro
-resource "aws_instance" "prometheus-ec2" {
-  ami           = data.aws_ami.ubuntu-noble-24-04-arm64-minimal.id
-  instance_type = "t4g.micro"
-  key_name      = "aws-key-pair"
+resource "aws_instance" "prometheus_ec2" {
+  ami                  = var.ami_id
+  iam_instance_profile = aws_iam_instance_profile.ssm_instance_profile.name
+  //vpc_security_group_ids = [aws_security_group.prometheus_sg_front_end.id]
+  instance_type = var.instance_type
+  key_name      = aws_key_pair.default.key_name
   monitoring    = true
   ebs_optimized = true
 
+  volume_tags = {
+    Name = "prometheus-ec2-root-volume"
+  }
+
+  root_block_device {
+    encrypted = true
+  }
+
   metadata_options {
     http_tokens                 = "required"
-    http_put_response_hop_limit = 1
     http_endpoint               = "enabled"
+    http_put_response_hop_limit = 1
   }
 
   network_interface {
-    network_interface_id = aws_network_interface.prometheus-nic.id
+    network_interface_id = aws_network_interface.prometheus_nic.id
     device_index         = 0
   }
 
@@ -53,36 +63,46 @@ resource "aws_instance" "prometheus-ec2" {
   }
 }
 
-resource "aws_network_interface" "prometheus-nic" {
-  subnet_id   = aws_subnet.base-sn-za-pro-pub-00.id
+resource "aws_network_interface" "prometheus_nic" {
+  subnet_id   = aws_subnet.public_subnet.id
   private_ips = ["172.21.0.20"]
   security_groups = [
-    aws_security_group.base-sg-ec2.id,
-    aws_security_group.prometheus-sg-front-end.id,
-    aws_security_group.exporter-sg-front-end.id,
-    aws_security_group.grafana-sg-front-end.id,
-    aws_security_group.jenkins-sg-front-end.id
+    aws_security_group.base_sg_ec2.id,
+    aws_security_group.prometheus_sg_front_end.id,
+    aws_security_group.exporter_sg_front_end.id,
+    aws_security_group.grafana_sg_front_end.id,
+    aws_security_group.jenkins_sg_front_end.id
   ]
   tags = {
-    Name = "primary_network_interface"
+    Name = "primary-network-interface"
   }
 }
 
-resource "aws_instance" "jenkins-ec2" {
-  ami           = data.aws_ami.ubuntu-noble-24-04-arm64-minimal.id
-  instance_type = "t4g.micro"
-  key_name      = "aws-key-pair"
+resource "aws_instance" "jenkins_ec2" {
+  ami                  = var.ami_id
+  iam_instance_profile = aws_iam_instance_profile.ssm_instance_profile.name
+  //vpc_security_group_ids = [aws_security_group.jenkins_sg_front_end.id]
+  instance_type = var.instance_type
+  key_name      = aws_key_pair.default.key_name
   monitoring    = true
   ebs_optimized = true
 
+  volume_tags = {
+    Name = "jenkins-ec2-root-volume"
+  }
+
+  root_block_device {
+    encrypted = true
+  }
+
   metadata_options {
     http_tokens                 = "required"
-    http_put_response_hop_limit = 1
     http_endpoint               = "enabled"
+    http_put_response_hop_limit = 1
   }
 
   network_interface {
-    network_interface_id = aws_network_interface.jenkins-nic.id
+    network_interface_id = aws_network_interface.jenkins_nic.id
     device_index         = 0
   }
 
@@ -100,15 +120,15 @@ resource "aws_instance" "jenkins-ec2" {
   }
 }
 
-resource "aws_network_interface" "jenkins-nic" {
-  subnet_id   = aws_subnet.base-sn-za-pro-pub-00.id
+resource "aws_network_interface" "jenkins_nic" {
+  subnet_id   = aws_subnet.public_subnet.id
   private_ips = ["172.21.0.21"]
   security_groups = [
-    aws_security_group.base-sg-ec2.id,
-    aws_security_group.exporter-sg-front-end.id,
-    aws_security_group.jenkins-sg-front-end.id
+    aws_security_group.base_sg_ec2.id,
+    aws_security_group.exporter_sg_front_end.id,
+    aws_security_group.jenkins_sg_front_end.id
   ]
   tags = {
-    Name = "primary_network_interface"
+    Name = "primary-network-interface"
   }
 }
