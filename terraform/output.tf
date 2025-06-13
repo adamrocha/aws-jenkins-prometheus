@@ -26,3 +26,13 @@ output "jenkins_public_dns" {
   value       = aws_instance.jenkins_ec2.public_dns
 }
 */
+
+output "jenkins_instance_id" {
+  description = "Instance ID of the Jenkins EC2 instance"
+  value       = aws_instance.jenkins_ec2.id
+}
+
+output "prometheus_instance_id" {
+  description = "Instance ID of the Prometheus EC2 instance"
+  value       = aws_instance.prometheus_ec2.id
+}
