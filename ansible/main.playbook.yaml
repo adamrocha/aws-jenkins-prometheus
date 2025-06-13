@@ -52,26 +52,26 @@
         enabled: true
     - name: Download Open Telemetry
       ansible.builtin.get_url:
-        url: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.105.0/otelcol_0.105.0_linux_arm64.deb
-        dest: /tmp/otelcol_0.105.0_linux_arm64.deb
+        url: https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.128.0/otelcol-contrib_0.128.0_linux_amd64.deb
+        dest: /tmp/otelcol_0.128.0_linux_amd64.deb
         mode: '0644'
     - name: Install Open Telemetry
       ansible.builtin.apt:
-        deb: /tmp/otelcol_0.105.0_linux_arm64.deb
+        deb: /tmp/otelcol_0.128.0_linux_amd64.deb
         state: present
     - name: Download Node Exporter
       ansible.builtin.get_url:
-        url: https://github.com/prometheus/node_exporter/releases/download/v1.8.2/node_exporter-1.8.2.linux-arm64.tar.gz
-        dest: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
+        url: https://github.com/prometheus/node_exporter/releases/download/v1.9.1/node_exporter-1.9.1.linux-amd64.tar.gz
+        dest: /tmp/node_exporter-1.9.1.linux-amd64.tar.gz
         mode: '0644'
     - name: Extract tar ball
       ansible.builtin.unarchive:
-        src: /tmp/node_exporter-1.8.2.linux-arm64.tar.gz
+        src: /tmp/node_exporter-1.9.1.linux-amd64.tar.gz
         dest: /opt
         remote_src: true
     - name: Create symbolic link to executable
       ansible.builtin.file:
-        src: /opt/node_exporter-1.8.2.linux-arm64/node_exporter
+        src: /opt/node_exporter-1.9.1.linux-amd64/node_exporter
         dest: /usr/local/bin/node_exporter
         owner: root
         group: root
