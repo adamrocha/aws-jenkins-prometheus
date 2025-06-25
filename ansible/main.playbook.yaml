@@ -9,11 +9,11 @@
       register: apt_clean
       changed_when: apt_clean.rc == 0
     - name: Update apt cache
-      ansible.builtin.apt:
+      ansible.builtin.package:
         update_cache: true
         cache_valid_time: 3600
     - name: Install base packages
-      ansible.builtin.apt:
+      ansible.builtin.package:
         name: "{{ item }}"
         state: present
         update_cache: true
@@ -41,7 +41,7 @@
         repo: deb https://download.docker.com/linux/ubuntu focal stable
         state: present
     - name: Update apt and install docker-ce
-      ansible.builtin.apt:
+      ansible.builtin.package:
         update_cache: true
         name: docker-ce
         state: present
@@ -56,7 +56,7 @@
         dest: /tmp/otelcol_0.128.0_linux_amd64.deb
         mode: '0644'
     - name: Install Open Telemetry
-      ansible.builtin.apt:
+      ansible.builtin.package:
         deb: /tmp/otelcol_0.128.0_linux_amd64.deb
         state: present
     - name: Download Node Exporter
