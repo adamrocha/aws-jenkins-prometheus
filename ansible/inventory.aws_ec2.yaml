@@ -1,21 +1,29 @@
-# AWS Ansible Inventory Plugin Configuration File
-# See options: https://docs.ansible.com/ansible/latest/collections/amazon/aws/aws_ec2_inventory.html
 plugin: amazon.aws.aws_ec2
-cache: false
-use_ssm_inventory: true
-# Limit query to regions
 regions:
   - us-east-1
-# A named AWS profile to use for authentication.
-profile: prom_infradmin
 
-# Create Ansible hosts groups using the following elements: 
+filters:
+  instance-state-name: running
+
+hostnames:
+  - tag:Name
+  - private-ip-address
+  - instance-id
+
+compose:
+  # Use instance ID for connection (SSM plugin requires it)
+  ansible_host: instance_id
+  # Make human-readable inventory hostnames (e.g., jenkins-172.21.0.11)
+  inventory_hostname: |
+    {{
+      (tags.Name | default('')) ~ '-' ~ private_ip_address
+      if (tags.Name is defined and private_ip_address is defined)
+      else instance_id
+    }}
+  ansible_connection: "'community.aws.aws_ssm'"
+  ansible_aws_ssm_bucket_name: "'my-app-bucket-1337'"
+  ansible_aws_ssm_region: "'us-east-1'"
+
 keyed_groups:
   - prefix: tag
     key: tags
-  - prefix: instance_type
-    key: instance_type
-hostnames:
-  - tag:private_name
-compose:
-  ansible_host: public_ip_address
