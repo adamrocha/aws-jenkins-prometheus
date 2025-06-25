@@ -8,6 +8,8 @@ filters:
 hostnames:
   - tag:Name
   - private-ip-address
+  - public-ip-address
+  - dns-name
   - instance-id
 
 compose:
