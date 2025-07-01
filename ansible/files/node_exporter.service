@@ -8,6 +8,14 @@ User=root
 Group=root
 Type=simple
 ExecStart=/usr/local/bin/node_exporter
+Restart=on-failure
+RestartSec=5s
+ProtectSystem=full
+ProtectHome=yes
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
 
 [Install]
 WantedBy=multi-user.target
