@@ -20,8 +20,8 @@
       loop:
         - 'apt-transport-https'
         - 'software-properties-common'
-        - 'python3-pip'
-        - 'virtualenv'
+        #- 'python3-pip'
+        #- 'virtualenv'
     - name: Echo base packages installation
       ansible.builtin.debug:
         msg: "Base packages installed and configured"
