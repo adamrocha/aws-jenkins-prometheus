@@ -15,7 +15,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "my_app_bucket_lifecycle" {
     id     = "expire-old-objects"
     status = "Enabled"
 
-    filter {} # Applies to all objects in the bucket
+    filter {
+      prefix = ""
+    } # Applies to all objects in the bucket
 
     expiration {
       days = 30
