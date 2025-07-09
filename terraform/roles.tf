@@ -41,8 +41,8 @@ resource "aws_iam_role_policy" "ec2_ssm_s3_inline" {
           "s3:ListBucket"
         ],
         Resource = [
-          "arn:aws:s3:::my-app-bucket-1337",
-          "arn:aws:s3:::my-app-bucket-1337/*"
+          "arn:aws:s3:::project-bucket-1337",
+          "arn:aws:s3:::project-bucket-1337/*"
         ]
       },
       {
@@ -57,6 +57,106 @@ resource "aws_iam_role_policy" "ec2_ssm_s3_inline" {
       }
     ]
   })
+}
+
+resource "aws_iam_role_policy" "ec2_ssm_s3_bucket_access" {
+  name = "inline-ec2-ssm-s3-policy"
+  role = aws_iam_role.ec2_ssm_s3_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "AllowS3AccessForSSM",
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ],
+        Resource = [
+          "${aws_s3_bucket.project_bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role" "s3_replication_role" {
+  name = "s3-replication-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect = "Allow",
+      Principal = {
+        Service = "s3.amazonaws.com"
+      },
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "s3_replication_policy" {
+  name = "s3-replication-policy"
+  role = aws_iam_role.s3_replication_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetReplicationConfiguration",
+          "s3:ListBucket"
+        ],
+        Resource = [
+          "arn:aws:s3:::project-bucket-1337"
+        ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObjectVersion",
+          "s3:GetObjectVersionAcl",
+          "s3:GetObjectVersionTagging",
+          "s3:ReplicateObject",
+          "s3:ReplicateDelete",
+          "s3:ReplicateTags"
+        ],
+        Resource = [
+          "arn:aws:s3:::project-bucket-1337/*"
+        ]
+      },
+      {
+        Effect   = "Allow",
+        Action   = "kms:Decrypt",
+        Resource = aws_kms_key.source_key.arn
+      },
+      {
+        Effect   = "Allow",
+        Action   = "kms:Encrypt",
+        Resource = aws_kms_key.dest_key.arn
+      }
+    ]
+  })
+}
+
+# Grant bucket access to the EC2 role (update inline policy to reference bucket ARN)
+data "aws_iam_policy_document" "s3_access_policy" {
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:ListBucket",
+      "s3:GetBucketLocation"
+    ]
+
+    resources = [
+      aws_s3_bucket.project_bucket.arn,
+    ]
+  }
 }
 
 
