@@ -1,8 +1,8 @@
 resource "aws_vpc" "base_vpc" {
   # checkov:skip=CKV2_AWS_12: SSM remote access
   cidr_block           = "172.21.0.0/16"
-  enable_dns_hostnames = false
-  enable_dns_support   = false
+  enable_dns_hostnames = true
+  enable_dns_support   = true
   tags = {
     Name = "base-vpc"
   }
@@ -113,20 +113,20 @@ resource "aws_route_table_association" "public_assoc" {
 
 resource "aws_default_security_group" "restrict_default" {
   vpc_id = aws_vpc.base_vpc.id
-  /*
-  ingress {
-    self      = true
-    from_port = 0
-    to_port   = 0
-    protocol    = "-1" # all protocols
-    cidr_blocks = []
-  }
-  */
+
+  # ingress {
+  #   self      = true
+  #   from_port = 0
+  #   to_port   = 0
+  #   protocol    = "-1" # all protocols
+  #   cidr_blocks = []
+  # }
+
   egress {
     self        = true
     from_port   = 0
     to_port     = 0
-    protocol    = "-1" # all protocols
+    protocol    = "-1" # all protocols`
     cidr_blocks = ["0.0.0.0/0"]
   }
 
