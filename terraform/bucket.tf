@@ -8,6 +8,25 @@ resource "aws_s3_bucket" "my_app_bucket" {
   }
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "my_app_bucket_lifecycle" {
+  bucket = aws_s3_bucket.my_app_bucket.id
+
+  rule {
+    id     = "expire-old-objects"
+    status = "Enabled"
+
+    filter {} # Applies to all objects in the bucket
+
+    expiration {
+      days = 30
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
+
 # Optional: Enable encryption, versioning, etc.
 resource "aws_s3_bucket_versioning" "my_app_bucket_versioning" {
   bucket = aws_s3_bucket.my_app_bucket.id
@@ -58,4 +77,3 @@ resource "aws_iam_role_policy" "ec2_ssm_s3_bucket_access" {
     ]
   })
 }
-
