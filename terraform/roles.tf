@@ -30,7 +30,7 @@ resource "aws_iam_role_policy" "ec2_ssm_s3_inline" {
           "ssmmessages:*",
           "ec2messages:*"
         ],
-        Resource = "*"
+        Resource = ["arn:aws:ec2:*:*:instance/*"]
       },
       {
         Sid    = "AllowS3Access",
@@ -52,8 +52,8 @@ resource "aws_iam_role_policy" "ec2_ssm_s3_inline" {
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"
-        ],
-        Resource = "*"
+        ]
+        Resource = ["arn:aws:logs:*:*:log-group:/aws/ssm/*"]
       }
     ]
   })
