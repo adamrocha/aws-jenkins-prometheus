@@ -3,9 +3,28 @@ resource "aws_s3_bucket" "my_app_bucket" {
   bucket        = "my-app-bucket-1337" # Must be globally unique
   force_destroy = true                 # Optional: allow deletion of non-empty bucket
   tags = {
-    Name        = "MyAppBucket-1337"
+    Name        = "my-app-bucket-1337"
     Environment = "dev"
   }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "my_app_bucket_sse" {
+  bucket = aws_s3_bucket.my_app_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.my_kms_key.key_id # Optional: specify KMS key for SSE-KMS
+      sse_algorithm     = "aws:kms"                     # Use "AES256" for SSE-S3 or "aws:kms" for SSE-KMS     
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "my_app_bucket_public_access_block" {
+  bucket                  = aws_s3_bucket.my_app_bucket.id
+  block_public_acls       = true
+  ignore_public_acls      = true
+  block_public_policy     = true
+  restrict_public_buckets = true
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "my_app_bucket_lifecycle" {
@@ -15,7 +34,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "my_app_bucket_lifecycle" {
     id     = "expire-old-objects"
     status = "Enabled"
 
-    filter {} # Applies to all objects in the bucket
+    filter {
+      prefix = ""
+    } # Applies to all objects in the bucket
 
     expiration {
       days = 30
