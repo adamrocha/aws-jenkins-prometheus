@@ -14,16 +14,13 @@ resource "aws_s3_bucket_versioning" "project_bucket_versioning" {
   versioning_configuration {
     status = "Enabled"
   }
-}
-/*
+
   lifecycle {
     prevent_destroy = false
     ignore_changes  = [versioning_configuration]
   }
-
-  depends_on = [aws_s3_bucket_replication_configuration.project_bucket_replication]
 }
-*/
+
 resource "aws_s3_bucket_versioning" "replication_bucket_versioning" {
   bucket = aws_s3_bucket.replication_bucket.id
 
@@ -64,18 +61,11 @@ resource "aws_s3_bucket_public_access_block" "project_bucket_public_access" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-/*
+
 resource "aws_s3_bucket_notification" "project_bucket_notification" {
   bucket = aws_s3_bucket.project_bucket.id
-  # Example: Add a lambda function notification (replace with your actual Lambda ARN)
-  lambda_function {
-    lambda_function_arn = "arn:aws:lambda:us-east-1:123456789012:function:example"
-    events              = ["s3:ObjectCreated:*"]
-  }
-
-  depends_on = [aws_s3_bucket.project_bucket]
 }
-*/
+
 resource "aws_s3_bucket_logging" "project_bucket_logging" {
   bucket        = aws_s3_bucket.project_bucket.id
   target_bucket = aws_s3_bucket.project_bucket.id # Log to the same bucket for simplicity, or a dedicated logging bucket
@@ -99,19 +89,11 @@ resource "aws_s3_bucket_public_access_block" "replication_bucket_public_access" 
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-/*
+
 resource "aws_s3_bucket_notification" "replication_bucket_notification" {
   bucket = aws_s3_bucket.replication_bucket.id
-
-  # Example: Add a lambda function notification (replace with your actual Lambda ARN)
-  lambda_function {
-    lambda_function_arn = "arn:aws:lambda:us-east-1:123456789012:function:example"
-    events              = ["s3:ObjectCreated:*"]
-  }
-
-  depends_on = [aws_s3_bucket.replication_bucket]
 }
-*/
+
 resource "aws_s3_bucket_logging" "replication_bucket_logging" {
   bucket        = aws_s3_bucket.replication_bucket.id
   target_bucket = aws_s3_bucket.replication_bucket.id # Log to the same bucket for simplicity, or a dedicated logging bucket
