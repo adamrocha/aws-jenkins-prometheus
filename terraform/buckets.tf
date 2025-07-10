@@ -53,6 +53,17 @@ resource "aws_s3_bucket_replication_configuration" "project_bucket_replication" 
   }
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "project_bucket_sse" {
+  bucket = aws_s3_bucket.project_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = aws_kms_key.source_key.key_id # Optional: specify KMS key for SSE-KMS
+      sse_algorithm     = "aws:kms"                     # Use "AES256" for SSE-S3 or "aws:kms" for SSE-KMS     
+    }
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "project_bucket_public_access" {
   bucket = aws_s3_bucket.project_bucket.id
 
@@ -72,6 +83,26 @@ resource "aws_s3_bucket_logging" "project_bucket_logging" {
   target_prefix = "log/"
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "project_bucket_lifecycle" {
+  bucket = aws_s3_bucket.project_bucket.id
+
+  rule {
+    id     = "expire-old-objects"
+    status = "Enabled"
+
+    filter {
+      prefix = ""
+    } # Applies to all objects in the bucket
+
+    expiration {
+      days = 30
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
+}
 
 resource "aws_s3_bucket" "replication_bucket" {
   bucket        = "project-replication-bucket-1337" # Must be globally unique
@@ -100,6 +131,16 @@ resource "aws_s3_bucket_logging" "replication_bucket_logging" {
   target_prefix = "log/"
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "replication_bucket_sse" {
+  bucket = aws_s3_bucket.replication_bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "aws:kms"
+    }
+  }
+}
+
 resource "aws_s3_bucket_lifecycle_configuration" "replication_bucket_lifecycle" {
   bucket = aws_s3_bucket.replication_bucket.id
 
@@ -120,46 +161,3 @@ resource "aws_s3_bucket_lifecycle_configuration" "replication_bucket_lifecycle" 
     }
   }
 }
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "source_bucket_sse" {
-  bucket = aws_s3_bucket.project_bucket.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      kms_master_key_id = aws_kms_key.source_key.key_id # Optional: specify KMS key for SSE-KMS
-      sse_algorithm     = "aws:kms"                     # Use "AES256" for SSE-S3 or "aws:kms" for SSE-KMS     
-    }
-  }
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "replication_bucket_sse" {
-  bucket = aws_s3_bucket.replication_bucket.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
-    }
-  }
-}
-
-resource "aws_s3_bucket_lifecycle_configuration" "project_bucket_lifecycle" {
-  bucket = aws_s3_bucket.project_bucket.id
-
-  rule {
-    id     = "expire-old-objects"
-    status = "Enabled"
-
-    filter {
-      prefix = ""
-    } # Applies to all objects in the bucket
-
-    expiration {
-      days = 30
-    }
-
-    abort_incomplete_multipart_upload {
-      days_after_initiation = 7
-    }
-  }
-}
-
